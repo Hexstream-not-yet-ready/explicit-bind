@@ -1,0 +1,31 @@
+Project's home: http://www.hexstreamsoft.com/projects/explicit-bind/
+
+
+UNSUPPORTED. UNSTABLE? INCOMPLETE? explicit-bind is a Common Lisp
+library that effectively enables intermixing of any number of LET,
+LET*, (an enhanced version of) FLET, MULTIPLE-VALUE-BIND and
+DESTRUCTURING-BIND constructs, at the cost of only one level of
+indentation.
+
+This solves the problem of too many levels of indentation introduced
+by nested binding constructs, which is a recurring one in complex (and
+even not-so-complex) code.
+
+Unlike apparently similar constructs, explicit-bind retains sanity,
+low cognitive load and intuitiveness by not overemphasizing
+conciseness and "cleverness".
+
+It also makes usage of multiple values and local functions much more
+natural, convenient and rewarding.
+
+It also allows more precise placement of declarations where they
+belong, and IGNORE, IGNORABLE and SPECIAL declarations can be placed
+"inline" with the bound names, eliminating aggravating duplication
+inherent in the traditional approach.
+
+Load it with ASDF: (asdf:load-system '#:explicit-bind).
+(Make sure ASDF can find explicit-bind.asd beforehand.)
+
+
+This library is in the Public Domain.
+See the UNLICENSE file for details.
