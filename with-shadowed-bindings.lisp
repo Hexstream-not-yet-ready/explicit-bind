@@ -1,13 +1,5 @@
 (in-package #:explicit-bind)
 
-#+nil
-`(recombine (remove-duplicates bindings :test #'equal)
-	    (progn (select symbol
-			   (cons (eql function) (cons symbol null))
-			   (cons (eql function)
-				 (cons (eql setf) (cons symbol null))))
-		   (values list list list)))
-
 (defmacro with-shadowed-bindings (bindings &body body)
   (multiple-value-bind (variables normal-functions setf-functions)
       (do ((bindings bindings (cdr bindings))
@@ -69,7 +61,7 @@
 			 (&rest rest)
 			 (declare (ignore rest))
 			 (error "Can't access shadowed ~
-                                  function or macro ~S." ',name)))
+                                 function or macro ~S." ',name)))
 		     names)
 		 ,@body)))
       (list setf-functions

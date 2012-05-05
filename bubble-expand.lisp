@@ -1,4 +1,4 @@
-(in-package #:explicit-bind)
+(in-package #:explicit-bind-expander)
 
 ;; Horrible implementation I wrote as a newb...
 (defun cartesian-product (branches)
