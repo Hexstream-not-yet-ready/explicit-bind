@@ -111,23 +111,23 @@
   (flet ((extract-decls (analyzed)
 	   (values (butlast analyzed)
 		   (car (last analyzed))))
-	 (conc (declarations analyzed)
-	   (nconc (when declarations
-		    (list `(declare ,@declarations)))
-		  (list analyzed))))
+	 (conc (analyzed declarations)
+	   (cons analyzed
+                 (when declarations
+                   (list `(declare ,@declarations))))))
     (let ((analyzed (%analyze-v/f-spec specification)))
       (case (length analyzed)
 	(0 (list `(progn ,form)))
 	(1 (multiple-value-bind (analyzed declarations)
 	       (extract-decls (first analyzed))
-	     (conc declarations
-		   `(:binding ,analyzed ,form))))
+	     (conc (append analyzed (list form))
+                   declarations)))
 	(t (let (declarationss analyzeds)
 	     (dolist (analyzed analyzed
-		      (conc (apply #'append
-				   (nreverse declarationss))
-			    `(:bindings ,(nreverse analyzeds)
-					,form)))
+		      (conc `(:bindings ,(nreverse analyzeds)
+					,form)
+                            (apply #'append
+				   (nreverse declarationss))))
 	       (multiple-value-bind (analyzed declarations)
 		   (extract-decls analyzed)
 		 (push analyzed analyzeds)
@@ -207,8 +207,9 @@
 	      (let ((operator (first spec)))
 		(ecase operator
 		  (:destructuring
-		   (error "Sorry, EXPLICIT-BIND :DESTRUCTURING is only ~
-                           implemented at \"top-level\" at this time."))
+		   (error "Sorry, ~S ~S is only ~
+                           implemented at \"top-level\" at this time."
+                          'bind :destructuring))
 		  (the (analyze
 			kind
 			(third spec)

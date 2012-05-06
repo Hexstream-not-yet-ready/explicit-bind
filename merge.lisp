@@ -27,52 +27,76 @@
 (defmacro define (name ((op &rest args) body-var keys-pattern) &body body)
   (check-type name (and symbol (not null)))
   (let ((spec (gensym (string '#:spec)))
-	(keys (gensym (string '#:keys))))
-    `(setf (find ',op)
+	(keys (gensym (string '#:keys)))
+        (op-gensym (unless op (gensym (string '#:op)))))
+    `(setf (find ',name)
 	   (make-instance
 	    'merger
 	    :name ',name
 	    :function
 	    (lambda (,spec ,body-var ,keys)
-	      (destructuring-bind ((,op ,@args) ,body-var ,keys-pattern)
+	      (destructuring-bind ((,(or op op-gensym) ,@args)
+                                   ,body-var
+                                   ,keys-pattern)
 		  (list ,spec ,body-var ,keys)
+                ,@(when op-gensym `((declare (ignorable ,op-gensym))))
 		,@body))
 	    :lambda-list ',args))))
 
-(define declare ((op &rest declaration-specifiers) body keys)
-  (declare (ignore op keys declaration-specifiers))
-  (values body))
+(defun merge1 (spec body keys)
+  (funcall (function (find (first spec))) spec body keys))
 
-(define shadow ((op &rest binding-names) body keys)
-  (declare (ignore op keys))
-  (list `(with-shadowed-bindings ,binding-names
-	   ,@body)))
+(defun merge (specs body &key keys)
+  (let ((body (reduce (lambda (specs body)
+                        (multiple-value-bind (body new-keys)
+                            (merge1 specs body keys)
+                          (setf keys new-keys)
+                          body))
+                      specs
+                      :from-end t
+                      :initial-value body))
+        (declarations (getf keys :declarations)))
+    (declare (ignore declarations))
+    body))
 
-(define progn ((op &body forms) body keys)
-  (declare (ignore op))
+
+(define declare ((nil &rest declaration-specifiers) body keys)
+  (values body
+          (if declaration-specifiers
+              (list* :declarations (append declaration-specifiers
+                                           (getf keys :declarations))
+                     keys)
+              keys)))
+
+(define shadow ((nil &rest binding-names) body keys)
+  (values (list `(explicit-bind:with-shadowed-bindings ,binding-names
+                   ,@body))
+          keys))
+
+(define progn ((nil &body forms) body keys)
   (values (append forms body) keys))
 
-(define variable ((op name form) body keys)
-  (declare (ignore op keys))
-  (list `(let ((,name ,form))
-	   ,@body)))
+(define variable ((nil name form) body keys)
+  (values (list `(let ((,name ,form))
+                   ,@body))
+          keys))
 
-(define cl:function ((op name form) body keys)
-  (declare (ignore op keys))
-  (list `(flet* ((,name ,form))
-	   ,@body)))
+(define cl:function ((nil name form) body keys)
+  (values (list `(explicit-bind:flet* ((,name ,form))
+                   ,@body))
+          keys))
 
-(define :destructuring ((op lambda-list form) body keys)
-  (declare (ignore op keys))
-  (list `(destructuring-bind ,lambda-list ,form
-	   ,@body)))
+(define :destructuring ((nil lambda-list form) body keys)
+  (values (list `(destructuring-bind ,lambda-list ,form
+                   ,@body))
+          keys))
 
-(define :accessors ((op accessor-specifications instance-form) body keys)
-  (declare (ignore op keys))
-  (list `(with-accessors ,accessor-specifications ,instance-form
-	   ,@body)))
+(define :accessors ((nil accessor-specifications instance-form) body keys)
+  (values (list `(with-accessors ,accessor-specifications ,instance-form
+                   ,@body))
+          keys))
 
-(define :slots ((op slot-specifications instance-form) body keys)
-  (declare (ignore op keys))
-  (list `(with-slots ,slot-specifications ,instance-form
-	   ,@body)))
+(define :slots ((nil slot-specifications instance-form) body keys)
+  (values (list `(with-slots ,slot-specifications ,instance-form
+                   ,@body))
+          keys))

@@ -1,12 +1,13 @@
 (in-package #:explicit-bind)
 
+(defun %trace ()
+  (trace eb-expander:expand eb-merger:merge eb-merger:merge1))
+
+(defun %untrace ()
+  (untrace eb-expander:expand eb-merger:merge eb-merger:merge1))
+
 (defun %merge (binding body)
   (etypecase (first binding)
-    ((eql declare)
-     (cons binding body))
-    ((eql shadow)
-     `(with-shadowed-bindings ,(rest binding)
-	,@body))
     ((or symbol cons)
      (flet ((process (var-spec form)
 	      (list
@@ -35,9 +36,13 @@
 			   ,@(mapcan #'process analyzed names))))))))))))
 
 (defmacro bind (bindings &body body)
-  (let ((body (reduce #'%merge bindings
-		      :from-end t
-		      :initial-value body)))
-    (if (typep (first body) '(cons (eql declare)))
-	(cons 'locally body)
-	(first body))))
+  (let* ((expanded (mapcan
+                    (lambda (binding)
+                      (copy-seq (eb-expander:expand binding)))
+                    bindings))
+         (body (eb-merger:merge expanded body)))
+    (cond ((not body)
+           nil)
+          ((not (rest body))
+           (first body))
+          (t `(progn ,@body)))))

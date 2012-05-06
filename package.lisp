@@ -6,6 +6,7 @@
            #:with-shadowed-bindings
            #:flet*))
 
+;; Don't :use. Use package-qualified symbols.
 (defpackage #:explicit-bind-expander
   (:nicknames #:eb-expander)
   (:use #:cl)
@@ -20,12 +21,16 @@
            #:specs-lambda-list
            #:forms-lambda-list))
 
+;; Don't :use. Use package-qualified symbols.
 (defpackage #:explicit-bind-merger
   (:nicknames #:eb-merger)
   (:use #:cl)
   (:shadow #:find
-           #:function)
+           #:function
+           #:merge)
   (:export #:define
+           #:merge1
+           #:merge
            #:find
            #:merger
            #:name
