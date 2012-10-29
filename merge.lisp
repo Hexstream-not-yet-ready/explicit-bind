@@ -68,11 +68,6 @@
                      keys)
               keys)))
 
-(define shadow ((nil &rest binding-names) body keys)
-  (values (list `(explicit-bind:with-shadowed-bindings ,binding-names
-                   ,@body))
-          keys))
-
 (define progn ((nil &body forms) body keys)
   (values (append forms body) keys))
 

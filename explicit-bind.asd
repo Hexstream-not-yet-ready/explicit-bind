@@ -11,7 +11,6 @@
   :serial cl:t
   :components ((:file "package")
 
-	       (:file "with-shadowed-bindings")
 	       (:file "flet-star")
 
                (:file "bubble-expand")
