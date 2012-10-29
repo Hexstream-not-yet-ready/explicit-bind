@@ -143,7 +143,7 @@
 	    (recurse spec))
 	  count)
     (0)
-    (1 (setf spec (bubble-expand 'values spec)))
+    (1 (setf spec (bubble-op-up:bubble-operator-upwards 'values spec)))
     (t (error "The symbol ~S was found more than once in ~S."
 	      'values
 	      spec)))

@@ -7,13 +7,14 @@
 
   :description "Effectively enables intermixing of any number of LET, LET*, (an enhanced version of) FLET, MULTIPLE-VALUE-BIND and DESTRUCTURING-BIND constructs, at the cost of only one level of indentation."
 
+  :depends-on (#:bubble-operator-upwards)
+
   :version "0.1"
   :serial cl:t
   :components ((:file "package")
 
 	       (:file "flet-star")
 
-               (:file "bubble-expand")
                (:file "expand")
 
 	       (:file "merge")
