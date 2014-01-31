@@ -3,7 +3,6 @@
 (defpackage #:explicit-bind
   (:use #:cl)
   (:export #:bind
-           #:with-shadowed-bindings
            #:flet*))
 
 ;; Don't :use. Use package-qualified symbols.
