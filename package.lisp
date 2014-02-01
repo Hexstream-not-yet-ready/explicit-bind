@@ -2,8 +2,7 @@
 
 (defpackage #:explicit-bind
   (:use #:cl)
-  (:export #:bind
-           #:flet*))
+  (:export #:bind))
 
 ;; Don't :use. Use package-qualified symbols.
 (defpackage #:explicit-bind-expander
