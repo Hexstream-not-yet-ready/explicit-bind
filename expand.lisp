@@ -62,7 +62,7 @@
      (funcall (function (find (caar binding))) binding))
     ((cons symbol t)
      (destructuring-bind (var init-form) binding
-       (funcall (function (find 'variable)) `((variable ,var) ,init-form))))
+       (expand `((variable ,var) ,init-form))))
     (t (error "Don't know how to ~S ~S." 'expand binding))))
 
 
