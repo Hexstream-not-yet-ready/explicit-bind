@@ -77,7 +77,7 @@
           keys))
 
 (define cl:function ((nil name form) body keys)
-  (values (list `(explicit-bind:flet* ((,name ,form))
+  (values (list `(eflet:eflet* ((,name ,form))
                    ,@body))
           keys))
 
